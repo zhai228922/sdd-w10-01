@@ -112,23 +112,19 @@ def test_handle_message_empty_input_fails(db, empty_text):
 
 def test_handle_message_routes_with_mock_ai(db):
     # 1. 登記路線
-    fake_report_ai = lambda prompt: '{"action": "登記", "category": "雨傘", "location": "圖書館", "item_id": null}'
-    r1 = service.handle_message(db, "我在圖書館撿到雨傘", "王小明", fake_report_ai)
+    r1 = service.handle_message(db, "我在圖書館撿到雨傘", "王小明", lambda p: "登記|雨傘|圖書館")
     assert r1["ok"] is True
     item_id = r1["data"]["id"]
 
     # 2. 查詢路線
-    fake_search_ai = lambda prompt: '{"action": "查詢", "category": "雨傘", "location": "未知", "item_id": null}'
-    r2 = service.handle_message(db, "找雨傘", "王小明", fake_search_ai)
+    r2 = service.handle_message(db, "找雨傘", "王小明", lambda p: "查詢|雨傘|未知")
     assert r2["ok"] is True
     assert len(r2["data"]["items"]) == 1
 
     # 3. 認領路線
-    fake_claim_ai = lambda prompt: f'{{"action": "認領", "category": "未知", "location": "未知", "item_id": {item_id}}}'
-    r3 = service.handle_message(db, f"我要認領 {item_id} 號", "王小明", fake_claim_ai)
+    r3 = service.handle_message(db, f"我要認領 {item_id} 號", "王小明", lambda p: "認領|未知|未知")
     assert r3["ok"] is True
 
     # 4. 看不懂路線
-    fake_unknown_ai = lambda prompt: '{"action": "其他", "category": "未知", "location": "未知", "item_id": null}'
-    r4 = service.handle_message(db, "今天天氣真好", "王小明", fake_unknown_ai)
+    r4 = service.handle_message(db, "今天天氣真好", "王小明", lambda p: "未知|未知|未知")
     assert r4["ok"] is False
