@@ -128,3 +128,5 @@ def test_handle_message_routes_with_mock_ai(db):
     # 4. 看不懂路線
     r4 = service.handle_message(db, "今天天氣真好", "王小明", lambda p: "未知|未知|未知")
     assert r4["ok"] is False
+
+# 0B �Ĥ@�� PR ����
